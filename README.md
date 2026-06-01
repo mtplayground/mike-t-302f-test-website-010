@@ -10,11 +10,13 @@ Build output is generated in `dist/`:
 npm run build
 ```
 
-The production start command serves the generated Astro output on `0.0.0.0:8080`:
+The production start command serves the generated Astro output from `dist/` on `0.0.0.0:8080`:
 
 ```bash
 npm start
 ```
+
+Set `PORT`, `HOST`, or `STATIC_ROOT` only when the deployment environment needs different values.
 
 If the public URL shows the "Sprite Deployment" placeholder, the deployed service is not serving this repository's
 Astro `dist/` output. Run the deployment diagnosis after building:
