@@ -20,6 +20,7 @@ myClawTeam is a static Astro landing page for an autonomous software development
 - Components live in `src/components/`; shared typed content lives in `src/data/`.
 - Global theme tokens and base styles live in `tailwind.config.mjs` and `src/styles/global.css`.
 - Static favicon is in `public/favicon.svg`.
+- Production serving uses Astro preview to serve the generated `dist/` output on `0.0.0.0:8080`.
 
 ## Configuration
 
@@ -30,7 +31,9 @@ myClawTeam is a static Astro landing page for an autonomous software development
 ## Verification
 
 - `npm run build` builds the static site to `dist/`.
+- `npm start` serves the generated `dist/` output on port 8080 for deployment/runtime environments.
 - `npm run smoke` verifies the generated static output, anchors, footer, contact form wiring, and validation/submission hooks.
+- `npm run diagnose:deployment -- <url>` compares local `dist/index.html` with a public deployment URL and flags the Sprite placeholder when the host is not serving Astro output.
 - `npx tsc --noEmit` is used as the TypeScript no-emit check.
 
 ## Conventions
@@ -39,3 +42,4 @@ myClawTeam is a static Astro landing page for an autonomous software development
 - Keep sections addressable by stable anchor IDs: `features`, `community`, and `contact`.
 - Prefer small Astro components and shared data modules over duplicated section content.
 - Keep JavaScript minimal and scoped to interactive behavior such as navigation and form handling.
+- Treat deployment mismatches as hosting/output problems first: confirm `dist/` locally, then compare the public URL before changing page content.
