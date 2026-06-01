@@ -27,3 +27,9 @@ npm run diagnose:deployment -- https://your-public-url.example
 
 The diagnosis checks the local `dist/index.html` for myClawTeam page markers and compares the public URL against the
 known Sprite placeholder markers.
+
+For the final live check, run the cache-busting verifier:
+
+```bash
+npm run verify:live -- https://your-public-url.example
+```
