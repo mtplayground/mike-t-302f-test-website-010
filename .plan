@@ -1,65 +1,37 @@
-Architecture plan for myClawTeam landing page
+Architecture plan for issue #33: Diagnose the deployment mismatch
 
 Product source
-- Product/brand name: myClawTeam, from the implementation issues.
-- PRODUCT.md is not present in the current repository tree at setup time; future sessions should prefer PRODUCT.md if it is added.
+- Product/brand name: myClawTeam, from PRODUCT.md.
+- The repository is an Astro static landing page for myClawTeam.
 
-Project shape
-- Use Astro as a static landing page framework with Tailwind integration.
-- Keep the app mostly server-rendered/static. Use small client-side scripts only for the mobile menu and contact form validation.
-- Expected top-level files after Issue #1: package.json, astro.config.mjs, tailwind.config.mjs, tsconfig.json, src/, public/.
+Issue scope
+- Diagnose why the public deployment URL shows the "Sprite Deployment" placeholder instead of the built Astro site.
+- Check which branch and commit are deployed.
+- Check whether the build ran successfully.
+- Check which directory the deployment serves, specifically whether it serves Astro's dist/ output.
 
-Module and file organization
-- src/layouts/BaseLayout.astro
-  Shared HTML shell, SEO meta, Open Graph/Twitter meta, favicon links, global page wrapper, and common slots.
-- src/pages/index.astro
-  Final assembled landing page with section anchors: features, community, contact.
-- src/components/Nav.astro
-  Sticky navigation, desktop links, CTA, and mobile-menu markup/script.
-- src/components/Hero.astro
-  First viewport hero with headline, supporting copy, primary/secondary CTAs, and dark gradient treatment.
-- src/components/FeatureCard.astro
-  Reusable icon/title/description card.
-- src/components/FeatureGrid.astro
-  Section heading and responsive grid populated from shared feature data.
-- src/components/Community.astro
-  Discord and X cards with invitation copy and outbound links.
-- src/components/ContactForm.astro
-  Name/email/message form using configured endpoint with mailto fallback and inline validation states.
-- src/components/Footer.astro
-  Logo, secondary nav, legal/credits row.
-- src/content/site.ts or src/data/site.ts
-  Shared constants for site metadata, nav links, CTAs, social links, feature-card content, and contact fallback values.
-- src/styles/global.css
-  Tailwind directives, base styles, focus states, smooth scrolling, and shared CSS variables if useful.
-- public/
-  Favicon and static assets.
+Project structure
+- src/pages/index.astro is the Astro entry page and composes the public landing page.
+- src/layouts/BaseLayout.astro provides the shared HTML shell and metadata.
+- src/components/ contains the page sections: Nav, Hero, FeatureGrid, Community, ContactForm, and Footer.
+- src/data/ and src/config/ hold static section data and form configuration.
+- src/styles/global.css and tailwind.config.mjs define the visual system.
+- scripts/smoke-test.mjs verifies the generated static output after npm run build.
 
-Shared types
-- Define simple TypeScript types near shared data if useful:
-  NavLink { label: string; href: string }
-  Feature { title: string; description: string; icon: string }
-  SocialLink { label: string; href: string; description: string }
-- Keep types lightweight; avoid extra runtime validation unless later requirements add dynamic content.
+Implementation approach for the issue
+- First reproduce locally with npm install if needed, npm run build, and npm run smoke.
+- Inspect dist/ after build to confirm the Astro output contains the myClawTeam site rather than placeholder content.
+- Inspect deployment configuration files and package scripts for build command, output directory, and adapter/static hosting assumptions.
+- Compare the deployed URL behavior against the current main commit and local dist/ output.
+- Use GitHub commit/status data as needed to identify whether the host deployed the expected branch and commit.
+- Document the root cause and minimal fix path in the issue implementation session.
 
-Environment configuration
-- Use a public Astro environment variable for the third-party form endpoint, for example PUBLIC_FORM_ENDPOINT.
-- Provide .env.example with the endpoint placeholder and optional public contact fallback values if needed.
-- The form should degrade gracefully to a mailto fallback when no endpoint is configured.
-
-Dependency order between issues
-- Issue #1 initializes Astro, Tailwind, and folder structure.
-- Issues #2, #3, and #4 build the shared foundation: design tokens/global styles, layout/SEO, and env configuration.
-- Issues #5 and #6 create navigation and mobile behavior.
-- Issues #7 through #13 create standalone page sections/components.
-- Issue #14 assembles Nav, Hero, Features, Community, Contact, and Footer into src/pages/index.astro.
-- Issue #15 performs responsive QA across breakpoints after assembly.
-- Issue #16 runs the final build and end-to-end smoke test after responsive fixes.
+Dependencies between issues
+- There is only one current implementation issue, #33, so there are no cross-issue dependencies.
+- The diagnosis depends on the existing Astro build scripts and smoke test, not on new application features.
 
 Key design decisions
-- Favor Astro components and shared data modules over hard-coded repeated copy in each section.
-- Use Tailwind tokens for the dark background, orange accent, typography, spacing, borders, and focus states so later sections remain visually consistent.
-- Keep JavaScript minimal and isolated: one script for nav toggle behavior and one for form validation/submission state.
-- Make anchor navigation accessible: semantic landmarks, keyboard-focusable controls, aria-expanded for the mobile menu, and visible focus rings.
-- Treat the landing page as static-first, with no backend dependency required for local build success.
-- Build verification should include astro build, output inspection, anchor-link smoke checks, and a contact-form validation/submission path check.
+- Do not change product branding while diagnosing; keep myClawTeam as defined in PRODUCT.md.
+- Prefer configuration and deployment fixes over page rewrites unless the diagnosis proves source content is wrong.
+- Keep any code changes small and targeted to build/deployment correctness.
+- Avoid introducing persistent storage or backend services; this is a static Astro deployment issue.
