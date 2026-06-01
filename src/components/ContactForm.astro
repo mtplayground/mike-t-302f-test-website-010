@@ -20,8 +20,10 @@ const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
       action={contactFormConfig.action}
       method="post"
       enctype={contactFormConfig.encoding}
+      novalidate
       class="rounded-panel border border-claw-800 bg-claw-900/70 p-6 shadow-glow"
       data-submission-mode={submissionMode}
+      data-contact-form
     >
       <input type="hidden" name="_subject" value="myClawTeam contact form" />
 
@@ -34,8 +36,12 @@ const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
             type="text"
             autocomplete="name"
             required
+            aria-invalid="false"
+            aria-describedby="contact-name-error"
+            data-field
             class="mt-2 h-12 w-full rounded-panel border border-claw-700 bg-claw-950 px-4 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
           />
+          <p id="contact-name-error" class="mt-2 text-sm text-ember-300" data-error-for="name" hidden></p>
         </div>
 
         <div>
@@ -46,8 +52,12 @@ const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
             type="email"
             autocomplete="email"
             required
+            aria-invalid="false"
+            aria-describedby="contact-email-error"
+            data-field
             class="mt-2 h-12 w-full rounded-panel border border-claw-700 bg-claw-950 px-4 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
           />
+          <p id="contact-email-error" class="mt-2 text-sm text-ember-300" data-error-for="email" hidden></p>
         </div>
 
         <div>
@@ -57,17 +67,154 @@ const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
             name="message"
             rows="6"
             required
+            aria-invalid="false"
+            aria-describedby="contact-message-error"
+            data-field
             class="mt-2 w-full resize-y rounded-panel border border-claw-700 bg-claw-950 px-4 py-3 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
           ></textarea>
+          <p id="contact-message-error" class="mt-2 text-sm text-ember-300" data-error-for="message" hidden></p>
         </div>
       </div>
 
       <button
         type="submit"
         class="mt-6 inline-flex h-12 w-full items-center justify-center rounded-panel bg-ember-500 px-6 text-sm font-semibold text-claw-950 shadow-glow transition-colors hover:bg-ember-400 sm:w-auto"
+        data-submit-button
       >
         Send Message
       </button>
+      <p class="mt-4 text-sm leading-6 text-claw-200" role="status" aria-live="polite" data-form-status hidden></p>
     </form>
   </div>
+
+  <script>
+    const contactForm = document.querySelector('[data-contact-form]');
+
+    if (contactForm instanceof HTMLFormElement) {
+      const fields = Array.from(contactForm.querySelectorAll('[data-field]')).filter(
+        (field) => field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement,
+      );
+      const submitButton = contactForm.querySelector('[data-submit-button]');
+      const status = contactForm.querySelector('[data-form-status]');
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const defaultSubmitText =
+        submitButton instanceof HTMLButtonElement ? submitButton.textContent?.trim() || 'Send Message' : 'Send Message';
+
+      const setStatus = (message, tone = 'neutral') => {
+        if (!(status instanceof HTMLElement)) {
+          return;
+        }
+
+        status.textContent = message;
+        status.hidden = !message;
+        status.classList.toggle('text-signal-400', tone === 'success');
+        status.classList.toggle('text-ember-300', tone === 'error');
+        status.classList.toggle('text-claw-200', tone === 'neutral');
+      };
+
+      const setSubmitting = (isSubmitting) => {
+        if (!(submitButton instanceof HTMLButtonElement)) {
+          return;
+        }
+
+        submitButton.disabled = isSubmitting;
+        submitButton.textContent = isSubmitting ? 'Sending...' : defaultSubmitText;
+      };
+
+      const setFieldError = (field, message) => {
+        const error = contactForm.querySelector(`[data-error-for="${field.name}"]`);
+
+        field.setAttribute('aria-invalid', message ? 'true' : 'false');
+
+        if (error instanceof HTMLElement) {
+          error.textContent = message;
+          error.hidden = !message;
+        }
+      };
+
+      const validateField = (field) => {
+        const value = field.value.trim();
+        let message = '';
+
+        if (field.required && !value) {
+          message = 'This field is required.';
+        } else if (field instanceof HTMLInputElement && field.type === 'email' && !emailPattern.test(value)) {
+          message = 'Enter a valid email address.';
+        }
+
+        setFieldError(field, message);
+        return !message;
+      };
+
+      const buildMailtoHref = () => {
+        const formData = new FormData(contactForm);
+        const name = String(formData.get('name') || '').trim();
+        const email = String(formData.get('email') || '').trim();
+        const message = String(formData.get('message') || '').trim();
+        const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
+        const action = contactForm.getAttribute('action') || 'mailto:';
+        const separator = action.includes('?') ? '&' : '?';
+
+        return `${action}${separator}body=${encodeURIComponent(body)}`;
+      };
+
+      fields.forEach((field) => {
+        field.addEventListener('blur', () => validateField(field));
+        field.addEventListener('input', () => {
+          if (field.getAttribute('aria-invalid') === 'true') {
+            validateField(field);
+          }
+        });
+      });
+
+      contactForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        setStatus('');
+
+        let invalidField;
+
+        fields.forEach((field) => {
+          if (!validateField(field) && !invalidField) {
+            invalidField = field;
+          }
+        });
+
+        if (invalidField) {
+          invalidField.focus();
+          return;
+        }
+
+        setSubmitting(true);
+
+        if (contactForm.dataset.submissionMode === 'mailto') {
+          window.location.href = buildMailtoHref();
+          setStatus('Your email client is opening with the message details.', 'success');
+          setSubmitting(false);
+          return;
+        }
+
+        try {
+          const response = await fetch(contactForm.action, {
+            method: 'POST',
+            body: new FormData(contactForm),
+            headers: {
+              Accept: 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error('Contact form submission failed.');
+          }
+
+          contactForm.reset();
+          fields.forEach((field) => setFieldError(field, ''));
+          setStatus('Message sent successfully.', 'success');
+        } catch {
+          setStatus('The message could not be sent. Please try again.', 'error');
+        } finally {
+          setSubmitting(false);
+        }
+      });
+    }
+  </script>
 </section>
