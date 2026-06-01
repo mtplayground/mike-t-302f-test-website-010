@@ -1,2 +1,38 @@
 @import "tailwindcss";
 @config "../../tailwind.config.mjs";
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    min-height: 100%;
+    scroll-behavior: smooth;
+    background: #050816;
+  }
+
+  body {
+    @apply min-h-screen bg-claw-950 font-sans text-claw-100 antialiased;
+    margin: 0;
+  }
+
+  ::selection {
+    @apply bg-ember-500 text-claw-950;
+  }
+
+  a {
+    @apply text-ember-300 underline-offset-4 transition-colors;
+  }
+
+  a:hover {
+    @apply text-ember-200;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-4 outline-ember-400;
+  }
+}
