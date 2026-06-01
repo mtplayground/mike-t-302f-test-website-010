@@ -1,0 +1,73 @@
+---
+import { contactFormConfig } from '../config/forms';
+
+const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
+---
+
+<section id="contact" class="border-b border-claw-800 bg-claw-950 py-section" aria-labelledby="contact-title">
+  <div class="mx-auto grid max-w-content gap-10 px-gutter lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+    <div class="max-w-measure">
+      <p class="text-sm font-semibold uppercase text-ember-300">Contact</p>
+      <h2 id="contact-title" class="mt-3 font-display text-3xl font-bold leading-tight text-claw-50 sm:text-4xl">
+        Start the next scoped request
+      </h2>
+      <p class="mt-4 text-base leading-8 text-claw-200 sm:text-lg">
+        Send a short note with the work you want myClawTeam to help move forward.
+      </p>
+    </div>
+
+    <form
+      action={contactFormConfig.action}
+      method="post"
+      enctype={contactFormConfig.encoding}
+      class="rounded-panel border border-claw-800 bg-claw-900/70 p-6 shadow-glow"
+      data-submission-mode={submissionMode}
+    >
+      <input type="hidden" name="_subject" value="myClawTeam contact form" />
+
+      <div class="grid gap-5">
+        <div>
+          <label for="contact-name" class="block text-sm font-semibold text-claw-100">Name</label>
+          <input
+            id="contact-name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            required
+            class="mt-2 h-12 w-full rounded-panel border border-claw-700 bg-claw-950 px-4 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
+          />
+        </div>
+
+        <div>
+          <label for="contact-email" class="block text-sm font-semibold text-claw-100">Email</label>
+          <input
+            id="contact-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            class="mt-2 h-12 w-full rounded-panel border border-claw-700 bg-claw-950 px-4 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
+          />
+        </div>
+
+        <div>
+          <label for="contact-message" class="block text-sm font-semibold text-claw-100">Message</label>
+          <textarea
+            id="contact-message"
+            name="message"
+            rows="6"
+            required
+            class="mt-2 w-full resize-y rounded-panel border border-claw-700 bg-claw-950 px-4 py-3 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
+          ></textarea>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="mt-6 inline-flex h-12 w-full items-center justify-center rounded-panel bg-ember-500 px-6 text-sm font-semibold text-claw-950 shadow-glow transition-colors hover:bg-ember-400 sm:w-auto"
+      >
+        Send Message
+      </button>
+    </form>
+  </div>
+</section>
