@@ -1,5 +1,7 @@
 target/
 node_modules/
+dist/
+.astro/
 .gh_token
 .claude/
 .database_url
