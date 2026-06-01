@@ -1,37 +1,36 @@
-Architecture plan for issue #33: Diagnose the deployment mismatch
+Architecture plan for deployment fix batch
 
 Product source
 - Product/brand name: myClawTeam, from PRODUCT.md.
-- The repository is an Astro static landing page for myClawTeam.
+- The project is a static Astro landing page for myClawTeam.
 
-Issue scope
-- Diagnose why the public deployment URL shows the "Sprite Deployment" placeholder instead of the built Astro site.
-- Check which branch and commit are deployed.
-- Check whether the build ran successfully.
-- Check which directory the deployment serves, specifically whether it serves Astro's dist/ output.
-
-Project structure
-- src/pages/index.astro is the Astro entry page and composes the public landing page.
-- src/layouts/BaseLayout.astro provides the shared HTML shell and metadata.
-- src/components/ contains the page sections: Nav, Hero, FeatureGrid, Community, ContactForm, and Footer.
+Current project structure
+- src/pages/index.astro assembles the public landing page.
+- src/layouts/BaseLayout.astro owns the HTML shell and metadata.
+- src/components/ contains Nav, Hero, FeatureGrid, Community, ContactForm, and Footer.
 - src/data/ and src/config/ hold static section data and form configuration.
-- src/styles/global.css and tailwind.config.mjs define the visual system.
-- scripts/smoke-test.mjs verifies the generated static output after npm run build.
+- src/styles/global.css and tailwind.config.mjs hold the design system.
+- scripts/smoke-test.mjs verifies the generated Astro output.
+- scripts/deployment-diagnosis.mjs compares local dist/ output with a public deployment URL and detects the Sprite placeholder.
 
-Implementation approach for the issue
-- First reproduce locally with npm install if needed, npm run build, and npm run smoke.
-- Inspect dist/ after build to confirm the Astro output contains the myClawTeam site rather than placeholder content.
-- Inspect deployment configuration files and package scripts for build command, output directory, and adapter/static hosting assumptions.
-- Compare the deployed URL behavior against the current main commit and local dist/ output.
-- Use GitHub commit/status data as needed to identify whether the host deployed the expected branch and commit.
-- Document the root cause and minimal fix path in the issue implementation session.
+Issue dependency order
+- Issue #35, "Point the server at the built static output", comes first. It must configure self-hosted static serving so the site root is Astro's `dist/` output instead of the default placeholder page.
+- Issue #36, "Verify the live URL serves the current build", depends on #35. It should rebuild, redeploy, bust stale cache if needed, and confirm the public URL renders the dark myClawTeam landing page sections.
 
-Dependencies between issues
-- There is only one current implementation issue, #33, so there are no cross-issue dependencies.
-- The diagnosis depends on the existing Astro build scripts and smoke test, not on new application features.
+Implementation direction for issue #35
+- Keep the existing Astro source and branding unchanged.
+- Add or adjust only the runtime/static-serving configuration needed for the deployment host to serve `dist/`.
+- Preserve `npm run build` as the build step and `npm start` as the port-8080 runtime entrypoint unless host-specific configuration requires a small wrapper.
+- Ensure any static server listens on `0.0.0.0:8080` and resolves the site root to the built `dist/` directory.
+
+Implementation direction for issue #36
+- Rebuild with `npm run build`.
+- Run `npm run smoke`.
+- Run the deployment diagnosis against the live URL.
+- Confirm the deployed HTML contains myClawTeam markers and the `features`, `community`, and `contact` sections, with no Sprite placeholder markers.
 
 Key design decisions
-- Do not change product branding while diagnosing; keep myClawTeam as defined in PRODUCT.md.
-- Prefer configuration and deployment fixes over page rewrites unless the diagnosis proves source content is wrong.
-- Keep any code changes small and targeted to build/deployment correctness.
-- Avoid introducing persistent storage or backend services; this is a static Astro deployment issue.
+- Treat this as a deployment/output-routing problem, not a page redesign.
+- Do not introduce persistence, server-side application state, or database dependencies.
+- Keep deployment checks scriptable so future agents can distinguish source build failures from hosting directory mistakes.
+- Keep product copy and visual content governed by PRODUCT.md and existing Astro components.
