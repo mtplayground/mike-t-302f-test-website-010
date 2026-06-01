@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port 8080",
     "build": "astro build",
-    "start": "astro preview --host 0.0.0.0 --port 8080",
+    "start": "node scripts/serve-static.mjs",
     "smoke": "node scripts/smoke-test.mjs",
     "diagnose:deployment": "node scripts/deployment-diagnosis.mjs",
     "preview": "astro preview --host 0.0.0.0 --port 8080",
