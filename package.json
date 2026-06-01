@@ -1,0 +1,18 @@
+{
+  "name": "mike-t-302f-test-website-010",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0 --port 8080",
+    "build": "astro build",
+    "preview": "astro preview --host 0.0.0.0 --port 8080",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "astro": "^5.18.2",
+    "tailwindcss": "^4.3.0"
+  },
+  "devDependencies": {}
+}
