@@ -6,7 +6,7 @@ const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
 
 <section id="contact" class="border-b border-claw-800 bg-claw-950 py-section" aria-labelledby="contact-title">
   <div class="mx-auto grid max-w-content gap-10 px-gutter lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-    <div class="max-w-measure">
+    <div class="max-w-measure min-w-0">
       <p class="text-sm font-semibold uppercase text-ember-300">Contact</p>
       <h2 id="contact-title" class="mt-3 font-display text-3xl font-bold leading-tight text-claw-50 sm:text-4xl">
         Start the next scoped request
@@ -21,7 +21,7 @@ const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
       method="post"
       enctype={contactFormConfig.encoding}
       novalidate
-      class="rounded-panel border border-claw-800 bg-claw-900/70 p-6 shadow-glow"
+      class="min-w-0 rounded-panel border border-claw-800 bg-claw-900/70 p-6 shadow-glow"
       data-submission-mode={submissionMode}
       data-contact-form
     >
@@ -39,7 +39,7 @@ const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
             aria-invalid="false"
             aria-describedby="contact-name-error"
             data-field
-            class="mt-2 h-12 w-full rounded-panel border border-claw-700 bg-claw-950 px-4 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
+            class="mt-2 h-12 w-full min-w-0 rounded-panel border border-claw-700 bg-claw-950 px-4 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
           />
           <p id="contact-name-error" class="mt-2 text-sm text-ember-300" data-error-for="name" hidden></p>
         </div>
@@ -55,7 +55,7 @@ const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
             aria-invalid="false"
             aria-describedby="contact-email-error"
             data-field
-            class="mt-2 h-12 w-full rounded-panel border border-claw-700 bg-claw-950 px-4 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
+            class="mt-2 h-12 w-full min-w-0 rounded-panel border border-claw-700 bg-claw-950 px-4 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
           />
           <p id="contact-email-error" class="mt-2 text-sm text-ember-300" data-error-for="email" hidden></p>
         </div>
@@ -70,7 +70,7 @@ const submissionMode = contactFormConfig.hasEndpoint ? 'service' : 'mailto';
             aria-invalid="false"
             aria-describedby="contact-message-error"
             data-field
-            class="mt-2 w-full resize-y rounded-panel border border-claw-700 bg-claw-950 px-4 py-3 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
+            class="mt-2 w-full min-w-0 resize-y rounded-panel border border-claw-700 bg-claw-950 px-4 py-3 text-base text-claw-50 outline-none transition-colors placeholder:text-claw-400 focus:border-ember-400"
           ></textarea>
           <p id="contact-message-error" class="mt-2 text-sm text-ember-300" data-error-for="message" hidden></p>
         </div>
