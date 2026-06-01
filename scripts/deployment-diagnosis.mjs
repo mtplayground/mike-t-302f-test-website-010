@@ -6,8 +6,18 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 
 const distIndexPath = new URL('../dist/index.html', import.meta.url);
-const deploymentUrl = process.env.DEPLOYMENT_URL ?? process.argv[2];
-const expectedMarkers = ['myClawTeam', 'id="features"', 'id="community"', 'id="contact"', '<main id="main-content"'];
+const args = process.argv.slice(2);
+const liveMode = args.includes('--live');
+const cacheBust = liveMode || args.includes('--cache-bust');
+const deploymentUrl = process.env.DEPLOYMENT_URL ?? args.find((arg) => !arg.startsWith('--'));
+const expectedMarkers = [
+  'myClawTeam',
+  'id="features"',
+  'id="community"',
+  'id="contact"',
+  '<main id="main-content"',
+  '<footer',
+];
 const spritePlaceholderMarkers = ['Sprite Deployment', 'fresh Sprite microVM', 'Application status: operational'];
 const failures = [];
 
@@ -38,15 +48,29 @@ const analyzeHtml = (label, html) => {
   };
 };
 
+const withCacheBust = (url) => {
+  if (!cacheBust) {
+    return url;
+  }
+
+  const parsedUrl = new URL(url);
+  parsedUrl.searchParams.set('_verify', `${Date.now()}`);
+  return parsedUrl.toString();
+};
+
 const fetchDeploymentHtml = async (url) => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
+  const fetchedUrl = withCacheBust(url);
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(fetchedUrl, {
       headers: {
         accept: 'text/html',
+        'cache-control': 'no-cache',
+        pragma: 'no-cache',
       },
+      redirect: 'follow',
       signal: controller.signal,
     });
 
@@ -84,6 +108,7 @@ console.log('Deployment diagnosis');
 console.log(`- Local branch: ${branch}`);
 console.log(`- Local commit: ${commit}`);
 console.log('- Expected build output directory: dist/');
+console.log(`- Cache busting enabled: ${cacheBust ? 'yes' : 'no'}`);
 
 if (!existsSync(distIndexPath)) {
   failures.push('dist/index.html does not exist. Run npm run build before diagnosing the deployment output.');
@@ -107,6 +132,10 @@ if (deploymentUrl) {
     const deployedAnalysis = analyzeHtml(`Deployment URL (${deployed.finalUrl}, status ${deployed.status})`, deployed.html);
     printAnalysis(deployedAnalysis);
 
+    if (deployed.status < 200 || deployed.status >= 300) {
+      failures.push(`Deployment URL returned HTTP ${deployed.status}.`);
+    }
+
     if (!deployedAnalysis.hasExpectedSite) {
       failures.push('Deployment URL is not serving the expected myClawTeam Astro page.');
     }
@@ -117,6 +146,8 @@ if (deploymentUrl) {
   } catch (error) {
     failures.push(`Could not fetch deployment URL: ${error instanceof Error ? error.message : String(error)}`);
   }
+} else if (liveMode) {
+  failures.push('Live verification requires DEPLOYMENT_URL or a URL argument.');
 } else {
   console.log('Deployment URL: not provided. Set DEPLOYMENT_URL or pass the URL as the first argument.');
 }
