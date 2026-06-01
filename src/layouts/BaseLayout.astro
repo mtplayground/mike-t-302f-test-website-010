@@ -1,0 +1,58 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  lang?: string;
+  noindex?: boolean;
+}
+
+const siteName = 'myClawTeam';
+const defaultDescription = 'Official myClawTeam landing page.';
+
+const {
+  title = siteName,
+  description = defaultDescription,
+  canonicalUrl,
+  lang = 'en',
+  noindex = false,
+} = Astro.props;
+
+const pageTitle = title === siteName ? siteName : `${title} | ${siteName}`;
+const configuredSiteUrl = Astro.site?.toString().replace(/\/$/, '');
+const resolvedCanonicalUrl =
+  canonicalUrl ?? (configuredSiteUrl ? new URL(Astro.url.pathname, configuredSiteUrl).toString() : undefined);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {resolvedCanonicalUrl && <link rel="canonical" href={resolvedCanonicalUrl} />}
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    {resolvedCanonicalUrl && <meta property="og:url" content={resolvedCanonicalUrl} />}
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

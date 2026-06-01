@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="myClawTeam">
+  <rect width="64" height="64" rx="14" fill="#050816"/>
+  <path d="M17 42V22h8l7 11 7-11h8v20h-7V32l-6 10h-4l-6-10v10h-7Z" fill="#f97316"/>
+  <path d="M18 46h28" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+</svg>
