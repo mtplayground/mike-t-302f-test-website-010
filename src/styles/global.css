@@ -36,4 +36,8 @@
   :focus-visible {
     @apply outline-2 outline-offset-4 outline-ember-400;
   }
+
+  [data-field][aria-invalid='true'] {
+    @apply border-ember-500;
+  }
 }
